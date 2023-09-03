@@ -24,7 +24,7 @@
                 <input id="upload" class="image-upload" style="display: none" type="file" accept="image/*" multiple="multiple" />
                 <div style="display: flex; justify-content: space-between; flex-wrap: nowrap">
                     <button id="removeAll" class="btn btn-outline-danger btn" style="display: block; margin-top: 10px" type="button">Remove All</button>
-                    <button id="upload-file" class="btn btn-outline-primary btn" style="display: block; margin-top: 10px; margin-right: 12px" type="button">UPLOAD</button>
+                    <button id="upload-file" class="btn btn-outline-primary btn" @click="uploadFile" style="display: block; margin-top: 10px; margin-right: 12px" type="button">UPLOAD</button>
                 </div>
                 <!-- <img src="nothing.png" height="10px" /> -->
             </div>
@@ -629,6 +629,19 @@ export default {
             imageUploadPlate.style.maxWidth = '440px';
             imageUploadPlate.style.height = '100%';
             imageUploadPlate.style.maxHeight = '310px';
+        },
+        uploadFile() {
+            console.log(this.imageFilesList);
+            console.log(this.companyCode);
+
+            if (!this.imageFilesList || this.imageFilesList.length < 1) {
+                return;
+            }
+
+            if (isNaN(this.companyCode)) {
+                alert('회사코드는 숫자여야만 합니다.');
+                return;
+            }
         },
     },
 };

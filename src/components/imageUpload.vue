@@ -48,6 +48,7 @@
             <hr />
             <template v-for="(item, idx) in uploadedData" :key="idx">
                 <div style="display: flex; flex-wrap: nowrap; flex-direction: column; align-items: center; margin-top: 10px">
+                    <sapn>{{ item.originFileName }}</sapn>
                     <div class="result-image-wrap" :style="'background-image: url(' + imageUrl + item.path + ')'"></div>
                     <!-- <div>
                     {{ item.originFileName }}
@@ -57,6 +58,10 @@
                 </div>
                 <hr />
             </template>
+        </div>
+        <div id="loading">
+            <img src="@img/loading.gif" />
+            <!-- <p>로딩 중...</p> -->
         </div>
     </div>
 </template>
@@ -652,10 +657,11 @@ export default {
             imageUploadPlate.style.maxHeight = '310px';
         },
         async uploadImages() {
+            /* 로딩 기능 */
+
             // console.log(this.imageFilesList);
             // console.log(this.companyCode);
             // console.log(process.env.VUE_APP_BASE_API);
-
             if (!this.imageFilesList || this.imageFilesList.length < 1) {
                 // console.log('AAAAAAAAAAA');
                 return;
@@ -669,11 +675,15 @@ export default {
             const data = {
                 images: this.imageFilesList,
                 options: {
-                    path: '/' + this.companyCode,
+                    path: '/company/' + this.companyCode,
                 },
             };
 
+            document.getElementById('loading').style.display = 'block';
+
             let result = await this.ajaxUploadImages(data);
+
+            document.getElementById('loading').style.display = 'none';
 
             if (!result.ok) {
                 alert('server error');
@@ -684,7 +694,6 @@ export default {
 
             this.uploadedData = result.data;
             this.uploadMessage = result.message;
-
             // console.log(this.uploadedData);
             // console.log(this.uploadMessage);
         },
@@ -912,5 +921,28 @@ label[for='upload'] {
     background-color: rgba(0, 0, 0, 0.5);
     /* background-color: black; */
     /* color: black; */
+}
+
+/* 모달 스타일 */
+#loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+    z-index: 9999; /* 다른 요소 위에 표시 */
+}
+
+#loading img {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* transform: translate(-50%, -50%); */
+    /* background-color: #fff; */
+    /* padding: 20px;
+    border-radius: 5px; */
 }
 </style>

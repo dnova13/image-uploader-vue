@@ -1,45 +1,62 @@
 <template>
     <!-- 그림등록 -->
-    <div>
-        <label style="padding: 20px 10px 5px 0px">사업자 코드 등록</label>
-        <input v-model="companyCode" type="text" />
-        <br />
-        <div class="image-upload">
-            <div class="upload-plate">
-                <div class="main-remove-btn" @click="removePreviewImage">
-                    <p id="removeImgBtn">X</p>
-                </div>
-                <label for="upload">
-                    <div id="upload-wrapper" class="upload-wrapper">
-                        <div>
-                            <label for="upload" class="upload-label">
-                                <p style="padding-bottom: 5px; font-size: 24px; margin: 5px 0px">Click or Drag Here</p>
-                                <div id="image_preview" class="main-image_preview">
-                                    <img id="image_previewAtimg" class="upload-img" src="@img/upload.svg" />
-                                </div>
-                            </label>
-                        </div>
+    <div class="image-container">
+        <div>
+            <label style="padding: 20px 10px 5px 0px">사업자 코드 등록</label>
+            <input v-model="companyCode" type="text" />
+            <br />
+            <div class="image-upload">
+                <div class="upload-plate">
+                    <div class="main-remove-btn" @click="removePreviewImage">
+                        <p id="removeImgBtn">X</p>
                     </div>
-                </label>
-                <input id="upload" class="image-upload" style="display: none" type="file" accept="image/*" multiple="multiple" />
-                <div style="display: flex; justify-content: space-between; flex-wrap: nowrap">
-                    <button id="removeAll" class="btn btn-outline-danger btn" style="display: block; margin-top: 10px" type="button">Remove All</button>
-                    <button id="upload-file" class="btn btn-outline-primary btn" @click="uploadFile" style="display: block; margin-top: 10px; margin-right: 12px" type="button">UPLOAD</button>
-                </div>
-                <!-- <img src="nothing.png" height="10px" /> -->
-            </div>
-            <div class="upload-table">
-                <template v-for="(image, idx) in imageFilesList" :key="idx">
-                    <div id="upload-wrapper-child" class="upload-wrapper-child" @click="selectImage($event, idx)">
-                        <div class="remove-btn-child" @click="removeImage($event, idx)">
-                            <span class="removeImgBtnChild">X</span>
+                    <label for="upload">
+                        <div id="upload-wrapper" class="upload-wrapper">
+                            <div>
+                                <label for="upload" class="upload-label">
+                                    <p style="padding-bottom: 5px; font-size: 24px; margin: 5px 0px">Click or Drag Here</p>
+                                    <div id="image_preview" class="main-image_preview">
+                                        <img id="image_previewAtimg" class="upload-img" src="@img/upload.svg" />
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                        <div id="image_preview" class="image_preview_chilidren">
-                            <img id="image_previewAtimg" class="upload-img-child" :src="image.imgUrl" />
-                        </div>
+                    </label>
+                    <input id="upload" class="image-upload" style="display: none" type="file" accept="image/*" multiple="multiple" />
+                    <div style="display: flex; justify-content: space-between; flex-wrap: nowrap">
+                        <button id="removeAll" class="btn btn-outline-danger btn" style="display: block; margin-top: 10px" type="button">Remove All</button>
+                        <button id="upload-file" class="btn btn-outline-primary btn" @click="uploadImages" style="display: block; margin-top: 10px; margin-right: 12px" type="button">UPLOAD</button>
                     </div>
-                </template>
+                    <!-- <img src="nothing.png" height="10px" /> -->
+                </div>
+                <div class="upload-table">
+                    <template v-for="(image, idx) in imageFilesList" :key="idx">
+                        <div id="upload-wrapper-child" class="upload-wrapper-child" @click="selectImage($event, idx)">
+                            <div class="remove-btn-child" @click="removeImage($event, idx)">
+                                <span class="removeImgBtnChild">X</span>
+                            </div>
+                            <div id="image_preview" class="image_preview_chilidren">
+                                <img id="image_previewAtimg" class="upload-img-child" :src="image.imgUrl" />
+                            </div>
+                        </div>
+                    </template>
+                </div>
             </div>
+        </div>
+        <div class="result-wrap">
+            {{ uploadMessage }}
+            <hr />
+            <template v-for="(item, idx) in uploadedData" :key="idx">
+                <div style="display: flex; flex-wrap: nowrap; flex-direction: column; align-items: center; margin-top: 10px">
+                    <div class="result-image-wrap" :style="'background-image: url(' + imageUrl + item.path + ')'"></div>
+                    <!-- <div>
+                    {{ item.originFileName }}
+                </div> -->
+                    <span style="font-size: 14px; margin-top: 5px">{{ item.path }}</span>
+                    <!-- <div style="margin-left: 20px"></div> -->
+                </div>
+                <hr />
+            </template>
         </div>
     </div>
 </template>
@@ -49,6 +66,7 @@ const MB = 1024 * 1024;
 const MAX_IMGS = 20;
 const MAX_FILE_SIZE = 20 * MB;
 const IMAGE_EXT_LIST = ['jpg', 'png', 'jpeg', 'gif', 'webp'];
+import { ajaxFetchForm } from '@/utils/function.js';
 
 export default {
     // name: 'HelloWorld',
@@ -57,10 +75,13 @@ export default {
     },
     data() {
         return {
+            imageUrl: process.env.VUE_APP_IMG_URL,
             uploadImageArr: [],
             imageFilesList: [],
             warningText: '',
             companyCode: '',
+            uploadMessage: '',
+            uploadedData: [],
         };
     },
     created() {},
@@ -135,7 +156,7 @@ export default {
             // let isHover = (e.target.className = e.type === 'dragover' ? true : false);
             // let isHover = (e.target.setAttribute('isDragover', ) = e.type === 'dragover' ? true : false);
 
-            console.log('dragClassName : ' + e.target.className);
+            // console.log('dragClassName : ' + e.target.className);
 
             if (isHover) {
                 fileDragDiv.style.color = '#f00';
@@ -207,8 +228,8 @@ export default {
         removeAllBtn.addEventListener('click', (e) => {
             e.preventDefault();
 
-            console.log('removeAll');
-            console.log(fileInput.fils);
+            // console.log('removeAll');
+            // console.log(fileInput.fils);
 
             this.imageFilesList = new Array();
             resetImg();
@@ -222,8 +243,8 @@ export default {
 
             wrapperChildDivs.forEach((wrapperChild, index) => {
                 wrapperChild.addEventListener('click', (e) => {
-                    console.log('!!!!!!!!!!!!!!!!!!!');
-                    console.log('wrapper3 arrlength ', this.imageFilesList);
+                    // console.log('!!!!!!!!!!!!!!!!!!!');
+                    // console.log('wrapper3 arrlength ', this.imageFilesList);
                     // console.log('wrapper3 arrlength ' + this.imageFilesList.length);
 
                     e.preventDefault();
@@ -279,7 +300,7 @@ export default {
                 alert(`이미지 파일 (.${IMAGE_EXT_LIST.join(', .')})만 업로드 가능합니다.`);
             } else {
                 chkFile = 1;
-                console.log('files from load_img ' + files);
+                // console.log('files from load_img ' + files);
 
                 // 여러장의 이미지를 불러와 배열화
                 const filesArr = Array.prototype.slice.call(files);
@@ -530,11 +551,11 @@ export default {
                 wrapperChildDivs[i].style.borderColor = 'black';
                 wrapperChildDivs[i].style.borderWidth = '1px';
             }
-            console.log('AAAAAAAA');
+            // console.log('AAAAAAAA');
         },
         selectImage(e, index) {
-            console.log('!!!!!!!!!!!!!!!!!!!', e, index);
-            console.log('wrapper3 arrlength ', this.imageFilesList);
+            // console.log('!!!!!!!!!!!!!!!!!!!', e, index);
+            // console.log('wrapper3 arrlength ', this.imageFilesList);
             // console.log('wrapper3 arrlength ' + this.imageFilesList.length);
 
             // const wrapperChild = e.target;
@@ -562,7 +583,7 @@ export default {
         },
         removeImage(e, index) {
             e.preventDefault();
-            console.log('removeImg ' + index);
+            // console.log('removeImg ' + index);
 
             if (this.imageFilesList.length - 1 >= index) {
                 this.imageFilesList.splice(index, 1);
@@ -571,7 +592,7 @@ export default {
             }
         },
         removePreviewImage(e) {
-            console.log('removePlate');
+            // console.log('removePlate');
 
             e.preventDefault();
             const imageUploadPlate = document.querySelector('.upload-img');
@@ -590,7 +611,7 @@ export default {
         },
         // 이미지 제거시 이용.
         settingImg(imageList) {
-            console.log('setting');
+            // console.log('setting');
 
             const imageUploadPlate = document.querySelector('.upload-img');
             const imageChildren = document.querySelectorAll('.upload-img-child');
@@ -630,18 +651,67 @@ export default {
             imageUploadPlate.style.height = '100%';
             imageUploadPlate.style.maxHeight = '310px';
         },
-        uploadFile() {
-            console.log(this.imageFilesList);
-            console.log(this.companyCode);
+        async uploadImages() {
+            // console.log(this.imageFilesList);
+            // console.log(this.companyCode);
+            // console.log(process.env.VUE_APP_BASE_API);
 
             if (!this.imageFilesList || this.imageFilesList.length < 1) {
+                // console.log('AAAAAAAAAAA');
                 return;
             }
 
-            if (isNaN(this.companyCode)) {
+            if (!this.companyCode || isNaN(this.companyCode)) {
                 alert('회사코드는 숫자여야만 합니다.');
                 return;
             }
+
+            const data = {
+                images: this.imageFilesList,
+                options: {
+                    path: '/' + this.companyCode,
+                },
+            };
+
+            let result = await this.ajaxUploadImages(data);
+
+            if (!result.ok) {
+                alert('server error');
+                return;
+            }
+
+            result = await result.json();
+
+            this.uploadedData = result.data;
+            this.uploadMessage = result.message;
+
+            // console.log(this.uploadedData);
+            // console.log(this.uploadMessage);
+        },
+        async ajaxUploadImages(data) {
+            // console.log(process.env.VUE_APP_BASE_API);
+            const apiUrl = process.env.VUE_APP_BASE_API + '/drv/upload/image';
+
+            const { images, options } = data;
+
+            // console.log(options);
+
+            let _formData = new FormData();
+
+            if (!Array.isArray(images)) {
+                _formData.append('images', images);
+            } else {
+                for (let item of images) {
+                    if (item) _formData.append('images', item.fileObj);
+                }
+            }
+
+            // 추가 데이터 추가
+            for (let key in options) {
+                _formData.append(key, options[key]);
+            }
+
+            return ajaxFetchForm(apiUrl, 'POST', _formData);
         },
     },
 };
@@ -649,6 +719,37 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+.image-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.result-wrap {
+    margin-left: 20px;
+    border: 1px solid lightgray;
+    padding: 20px;
+    border-radius: 4px;
+    width: 400px;
+    overflow: auto;
+    max-height: 700px;
+}
+
+.result-image-wrap {
+    /* width: 300px;
+    height: 300px; */
+    width: 200px;
+    height: 200px;
+    /* max-width: 60px; */
+    /* max-height: 60px; */
+    /* background-size: cover; */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-position: center;
+}
+
 label {
     font-size: 18px;
 }

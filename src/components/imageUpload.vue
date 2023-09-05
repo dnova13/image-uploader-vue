@@ -48,7 +48,7 @@
             <hr />
             <template v-for="(item, idx) in uploadedData" :key="idx">
                 <div style="display: flex; flex-wrap: nowrap; flex-direction: column; align-items: center; margin-top: 10px">
-                    <sapn>{{ item.originFileName }}</sapn>
+                    <sapn style="user-select: none">{{ item.originFileName }}</sapn>
                     <div class="result-image-wrap" :style="'background-image: url(' + imageUrl + item.path + ')'"></div>
                     <!-- <div>
                     {{ item.originFileName }}

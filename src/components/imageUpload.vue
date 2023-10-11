@@ -2,6 +2,9 @@
     <!-- 그림등록 -->
     <div class="image-container">
         <div>
+            <strog style="margin-right: 20px">최대 이미지 개수 : {{ MAX_IMGS }} 개</strog>
+            <strog>최대 파일 크기 : {{ MAX_FILE_SIZE }}</strog>
+            <br />
             <label style="padding: 20px 10px 5px 0px">사업자 코드 등록</label>
             <input v-model="companyCode" type="text" />
             <br />
@@ -49,11 +52,13 @@
             <template v-for="(item, idx) in uploadedData" :key="idx">
                 <div style="display: flex; flex-wrap: nowrap; flex-direction: column; align-items: center; margin-top: 10px">
                     <sapn style="user-select: none">{{ item.originFileName }}</sapn>
-                    <div class="result-image-wrap" :style="'background-image: url(' + imageUrl + item.path + ')'"></div>
+                    <div class="result-image-wrap" :style="'background-image: url(' + imageUrl + item.path + ')'" @click="showImageLink">
+                        <a :href="item.url"></a>
+                    </div>
                     <!-- <div>
                     {{ item.originFileName }}
                 </div> -->
-                    <span style="font-size: 14px; margin-top: 5px">{{ item.path }}</span>
+                    <span style="font-size: 14px; margin-top: 5px; width: 360px; word-break: break-all">{{ item.path }}</span>
                     <!-- <div style="margin-left: 20px"></div> -->
                 </div>
                 <hr />
@@ -71,6 +76,10 @@ const MB = 1024 * 1024;
 const MAX_IMGS = 20;
 const MAX_FILE_SIZE = 20 * MB;
 const IMAGE_EXT_LIST = ['jpg', 'png', 'jpeg', 'gif', 'webp'];
+
+// const apiUrl = process.env.VUE_APP_BASE_API + '/drv/upload/image';
+const apiUrl = process.env.VUE_APP_BASE_API + '/common/upload/image';
+
 import { ajaxFetchForm } from '@/utils/function.js';
 
 export default {
@@ -87,6 +96,8 @@ export default {
             companyCode: '',
             uploadMessage: '',
             uploadedData: [],
+            MAX_IMGS: MAX_IMGS,
+            MAX_FILE_SIZE: `${MAX_FILE_SIZE / MB} MB`,
         };
     },
     created() {},
@@ -540,6 +551,11 @@ export default {
         };
     },
     methods: {
+        showImageLink(e) {
+            console.log(e.target);
+            var imageLink = e.target.querySelector('a').getAttribute('href');
+            window.open(imageLink, '_blank');
+        },
         checkFileSize(file) {
             if (MAX_FILE_SIZE * MB < file.size) {
                 this.warningText = `${MAX_FILE_SIZE} MB 이하 크기까지 업로드 가능합니다.`;
@@ -675,7 +691,7 @@ export default {
             const data = {
                 images: this.imageFilesList,
                 options: {
-                    path: '/company/' + this.companyCode,
+                    path: 'company/' + this.companyCode,
                 },
             };
 
@@ -699,7 +715,6 @@ export default {
         },
         async ajaxUploadImages(data) {
             // console.log(process.env.VUE_APP_BASE_API);
-            const apiUrl = process.env.VUE_APP_BASE_API + '/drv/upload/image';
 
             const { images, options } = data;
 

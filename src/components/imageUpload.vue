@@ -53,7 +53,7 @@
                 <div style="display: flex; flex-wrap: nowrap; flex-direction: column; align-items: center; margin-top: 10px">
                     <sapn style="user-select: none">{{ item.originFileName }}</sapn>
                     <div class="result-image-wrap" :style="'background-image: url(' + imageUrl + item.path + ')'" @click="showImageLink">
-                        <a :href="item.url"></a>
+                        <a :href="imageUrl + item.path"></a>
                     </div>
                     <!-- <div>
                     {{ item.originFileName }}

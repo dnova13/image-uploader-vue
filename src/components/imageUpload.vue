@@ -73,8 +73,8 @@
 
 <script>
 const MB = 1024 * 1024;
-const MAX_IMGS = 20;
-const MAX_FILE_SIZE = 20 * MB;
+const MAX_IMGS = 40;
+const MAX_FILE_SIZE = 40 * MB;
 const IMAGE_EXT_LIST = ['jpg', 'png', 'jpeg', 'gif', 'webp'];
 
 // const apiUrl = process.env.VUE_APP_BASE_API + '/drv/upload/image';
@@ -683,10 +683,15 @@ export default {
                 return;
             }
 
-            if (!this.companyCode || isNaN(this.companyCode)) {
+            if (!this.companyCode) {
                 alert('회사코드는 숫자여야만 합니다.');
                 return;
             }
+
+            // if (!this.companyCode || isNaN(this.companyCode)) {
+            //     alert('회사코드는 숫자여야만 합니다.');
+            //     return;
+            // }
 
             const data = {
                 images: this.imageFilesList,
